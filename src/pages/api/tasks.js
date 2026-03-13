@@ -35,3 +35,5 @@ export default function handler(req, res) {
       res.status(405).end(`Método ${method} não permitido.`);
   }
 }
+
+// api crud
