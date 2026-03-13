@@ -1,0 +1,62 @@
+// This is your Prisma schema file
+// Learn more about it at https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  login     String   @unique
+  senha     String
+  funcao    String   // camareira, auxiliar, faxineiro, etc.
+  papel     Papel    @default(FUNCIONARIO)
+  status    Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+
+  tarefasAtribuidas Tarefa[] @relation("TarefaFuncionario")
+  tarefasCriadas    Tarefa[] @relation("TarefaGestor")
+}
+
+enum Papel {
+  ADMINISTRADOR
+  GESTOR
+  FUNCIONARIO
+}
+
+model Tarefa {
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  descricao   String?
+  local       String
+  prioridade  Prioridade @default(MEDIA)
+  status      Status     @default(ATRIBUIDA)
+  inicio      DateTime?
+  termino     DateTime?
+  criadoEm   DateTime   @default(now())
+
+  funcionario   Usuario? @relation("TarefaFuncionario", fields: [funcionarioId], references: [id])
+  funcionarioId Int?
+
+  gestor   Usuario @relation("TarefaGestor", fields: [gestorId], references: [id])
+  gestorId Int
+}
+
+enum Prioridade {
+  ALTA
+  MEDIA
+  BAIXA
+}
+
+enum Status {
+  NAO_ATRIBUIDA
+  ATRIBUIDA
+  EM_ANDAMENTO
+  CONCLUIDA
+}
